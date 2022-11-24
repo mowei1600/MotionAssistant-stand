@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
 
 /**
  * @author MoWei
@@ -95,7 +96,14 @@ public class XiaomiApi {
 
     public static String getAccessCode(String account, String password, Map<String, Object> retMap) {
         try {
-            URIBuilder builder = new URIBuilder("https://api-user.huami.com/registrations/+86" + account + "/tokens");
+            URIBuilder builder = null;
+            String phoneRegExp = "^1[3|4|5|7|8][0-9]{9}$";
+            String mailboxRegExp = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
+            if (Pattern.matches(phoneRegExp, account)) {
+                builder = new URIBuilder("https://api-user.huami.com/registrations/+86" + account + "/tokens");
+            } else if (Pattern.matches(mailboxRegExp, account)) {
+                builder = new URIBuilder("https://api-user.huami.com/registrations/" + account + "/tokens");
+            }
             HashMap<String, String> data = new HashMap<>();
             data.put("client_id", "HuaMi");
             data.put("password", password);
@@ -133,14 +141,18 @@ public class XiaomiApi {
     public static Map<String, String> login(String accessCode) {
         try {
             HashMap<String, String> data1 = new HashMap<>();
-            data1.put("app_version", "4.6.0");
+            data1.put("app_name", "com.xiaomi.hm.health");
+            data1.put("app_version", "6.4.1");
             data1.put("code", accessCode);
             data1.put("country_code", "CN");
             data1.put("device_id", "2C8B4939-0CCD-4E94-8CBA-CB8EA6E613A1");
-            data1.put("device_model", "phone");
+            data1.put("device_model", "android_phone");
             data1.put("grant_type", "access_token");
-            data1.put("third_name", "huami_phone");
-            data1.put("app_name", "com.xiaomi.hm.health");
+            data1.put("third_name", "huami");
+            data1.put("allow_registration", "false");
+            data1.put("dn", "account.huami.com%2Capi-user.huami.com%2Capi-watch…m%2Capp-analytics.huami.com%2Capi-mifit.huami.com");
+            data1.put("source", "com.xiaomi.hm.health%3A6.0.1%3A50545");
+            data1.put("lang", "ch");
             URIBuilder builder1 = new URIBuilder("https://account.huami.com/v2/client/login");
             data1.forEach(builder1::setParameter);
             HttpPost httpPost1 = new HttpPost(builder1.build());

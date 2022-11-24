@@ -21,7 +21,7 @@ public class MotionAssistantStandController {
      * @param password
      * @return
      */
-    @GetMapping("mi")
+    @RequestMapping("mi")
     public R submit(String user, String password, String steps) {
         return motionAssistantStandService.submit(user, password, steps);
     }
